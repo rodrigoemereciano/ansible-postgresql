@@ -1,0 +1,15 @@
+---
+# vars file for postgresql
+
+url_postgres: "https://ftp.postgresql.org/pub/source/v13.2/postgresql-13.2.tar.gz"
+prefix_pg: "/usr/local/pgsql"
+senha: "123!postgres"
+versao_pg: "postgresql-13.2"
+compress_versao_pg: "postgresql-13.2.tar.gz"
+data_pg: "/data/pgdata"
+packages:
+  - bison-devel
+  - readline-devel
+  - zlib-devel
+  - openssl-devel
+  - wget

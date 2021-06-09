@@ -1,0 +1,102 @@
+---
+# tasks file for postgresql
+
+
+
+- name: Instalacao do groupinstall "Development Tools"
+  yum:
+    name: "@Development Tools"
+    state: present
+
+- name: Instalacao de dependencias
+  yum:
+    name: "{{ packages }}"
+    state: present
+     
+
+- name: Download e descompactando o binario do postgresql
+  ansible.builtin.unarchive:
+    src: "{{ url_postgres }}"
+    dest: /usr/src
+    remote_src: yes
+    owner: root
+
+
+- name: Preparacao e compilacao do postgresql
+  shell:
+    cmd: ./configure --prefix="{{ prefix_pg }}" && make && make install
+    chdir: "/usr/src/{{ versao_pg }}"
+
+- name: Criar de usuario postgres
+  ansible.builtin.user:
+    name: postgres
+    password: "{{ senha | password_hash('sha512') }}"
+    create_home: False
+    shell: /bin/bash
+    comment: Usuário Administrador do Postgresql
+
+
+- name: Criar diretorio e aplicar permissoes
+  ansible.builtin.file:
+    path: "{{ data_pg }}"
+    owner: postgres
+    group: postgres
+    mode: '0755'
+    state: directory
+
+
+- name: copiando postgresql.service
+  ansible.builtin.copy:
+    src: postgresql/files/postgresql.service 
+    dest: /etc/systemd/system/postgresql.service
+    owner: root
+    group: root 
+    mode: "755"
+
+- name: copiando script initdb.sh
+  ansible.builtin.copy:
+    src: postgresql/files/initdb.sh
+    dest: /tmp
+    owner: root
+    group: root 
+    mode: "755"
+
+
+- name: Inicializando o cluster do postgresql
+  shell: /tmp/initdb.sh
+  args:
+    executable: /usr/bin/bash
+
+
+- name: copiando script postgresenv.sh
+  ansible.builtin.copy:
+    src: postgresql/files/postgresenv.sh
+    dest: /etc/profile.d/postgresenv.sh
+    owner: root
+    group: root 
+    mode: "755"
+
+
+- name: Exportando variaveis do postgresql
+  shell: /etc/profile.d/postgresenv.sh
+  args:
+    executable: /usr/bin/bash
+
+- name: Criar diretorio e aplicar permissoes
+  ansible.builtin.file:
+    path: "{{ data_pg }}/pg_log"
+    owner: postgres
+    group: postgres
+    mode: '0755'
+    state: directory
+
+
+- name: Reload do systemd 
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Garantir que o postgresql está habilitado e executando
+  ansible.builtin.systemd:
+    state: started
+    daemon_reload: yes
+    name: postgresql

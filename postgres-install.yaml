@@ -1,0 +1,11 @@
+
+--- 
+
+- name: Instalacao do postgres
+  hosts: servers_db
+  remote_user: ansible
+  become: yes
+  
+
+  roles:
+    - role: postgresql
