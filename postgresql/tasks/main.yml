@@ -82,7 +82,7 @@
   args:
     executable: /usr/bin/bash
 
-- name: Criar diretorio e aplicar permissoes
+- name: Criar diretorio de logs e aplicar permissoes
   ansible.builtin.file:
     path: "{{ data_pg }}/pg_log"
     owner: postgres
