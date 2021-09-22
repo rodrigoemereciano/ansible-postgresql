@@ -1,8 +1,6 @@
 ---
 # tasks file for postgresql
 
-
-
 - name: Instalacao do groupinstall "Development Tools"
   yum:
     name: "@Development Tools"
@@ -89,14 +87,7 @@
     group: postgres
     mode: '0755'
     state: directory
+  notify:
+    - reload systemd
+    - start postgresql
 
-
-- name: Reload do systemd 
-  ansible.builtin.systemd:
-    daemon_reload: yes
-
-- name: Garantir que o postgresql está habilitado e executando
-  ansible.builtin.systemd:
-    state: started
-    daemon_reload: yes
-    name: postgresql
